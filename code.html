@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة مدرب كرة القدم - الدوري الإسباني</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Team Selection Overlay (Initially Hidden) -->
+    <div id="team-selection-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; color: white; display: flex; justify-content: center; align-items: center;">
+        <div style="background: #333; padding: 30px; border-radius: 10px; text-align: center;">
+            <h2>اختر فريقك في الدوري الإسباني</h2>
+            <select id="team-select-dropdown" style="padding: 10px; min-width: 200px; margin-bottom: 20px; color: #333;">
+                <!-- Options will be added by JS -->
+            </select>
+            <br>
+            <label for="manager-name-input">اسم المدرب:</label>
+            <input type="text" id="manager-name-input" value="المدرب" style="padding: 8px; margin-bottom: 20px; color: #333;">
+            <br>
+            <button id="confirm-team-selection" style="padding: 10px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em;">ابدأ اللعب</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <header>
+            <h1>محاكاة مدرب كرة القدم - الدوري الإسباني</h1>
+            <div id="status-bar">
+                <span id="team-name">اسم الفريق</span> |
+                الميزانية: <span id="budget">€0</span> |
+                السمعة: <span id="reputation">50</span> |
+                <span id="season-year">الموسم</span> | <!-- Added Season Year -->
+                التاريخ: <span id="game-date">01/07/2024</span>
+            </div>
+        </header>
+
+        <nav id="main-nav">
+            <button data-section="dashboard">لوحة التحكم</button>
+            <button data-section="team-management">إدارة الفريق</button>
+            <button data-section="transfers">الانتقالات</button>
+            <button data-section="fixtures">المباريات</button>
+            <button data-section="league-table">جدول الدوري</button> <!-- Added League Table -->
+            <button data-section="finances">المالية</button>
+            <button data-section="facilities">المنشآت</button>
+            <button data-section="media">الإعلام</button>
+            <button id="advance-day-btn">تقدم يوم</button>
+            <button id="save-game-btn">حفظ اللعبة</button>
+            <button id="reset-game-btn">بدء جديد</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- لوحة التحكم (القسم الافتراضي) -->
+            <section id="dashboard-section" class="active-section">
+                <h2>لوحة التحكم</h2>
+                <p>مرحبًا بك أيها المدرب <span id="manager-name-display"></span>!</p> <!-- Display manager name -->
+                <div id="news-feed">
+                    <h3>آخر الأخبار والأحداث</h3>
+                    <ul id="news-list">
+                        <li>تم تعيينك مدربًا جديدًا!</li>
+                    </ul>
+                </div>
+                 <div id="next-match-info">
+                     <h3>المباراة القادمة</h3>
+                     <p id="next-opponent">الخصم: --- | البطولة: --- | التاريخ: ---</p> <!-- Added Competition Type -->
+                 </div>
+                 <div id="league-position-summary">
+                    <h3>وضع الدوري</h3>
+                    <p id="current-league-pos">المركز: - | النقاط: -</p>
+                 </div>
+            </section>
+
+            <!-- إدارة الفريق (Added Competitions Tab) -->
+            <section id="team-management-section">
+                <h2>إدارة الفريق</h2>
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="squad">التشكيلة</button>
+                    <button class="tab-button" data-tab="tactics">الخطط</button>
+                    <button class="tab-button" data-tab="training">التدريب</button>
+                     <button class="tab-button" data-tab="competitions">البطولات</button> <!-- Added Competitions Tab -->
+                </div>
+
+                <div id="squad-tab" class="tab-content active">
+                    <h3>التشكيلة الأساسية والاحتياط</h3>
+                    <div id="squad-list">
+                        <!-- سيتم ملء اللاعبين هنا بواسطة JavaScript -->
+                    </div>
+                </div>
+
+                <div id="tactics-tab" class="tab-content">
+                    <h3>الخطط والتكتيكات</h3>
+                    <label for="formation-select">الخطة:</label>
+                    <select id="formation-select">
+                        <option value="4-4-2">4-4-2</option>
+                        <option value="4-3-3">4-3-3</option>
+                        <option value="3-5-2">3-5-2</option>
+                        <option value="5-3-2">5-3-2</option>
+                        <option value="4-2-3-1">4-2-3-1</option> <!-- Added Formation -->
+                        <option value="4-1-4-1">4-1-4-1</option> <!-- Added Formation -->
+                    </select>
+                    <label for="mentality-select">العقلية:</label>
+                    <select id="mentality-select">
+                        <option value="very_attacking">هجومية بحتة</option> <!-- Added Mentality -->
+                        <option value="attacking">هجومية</option>
+                        <option value="balanced">متوازنة</option>
+                        <option value="defensive">دفاعية</option>
+                        <option value="very_defensive">دفاعية بحتة</option> <!-- Added Mentality -->
+                    </select>
+                    <button id="save-tactics-btn">حفظ التكتيكات</button>
+                </div>
+
+                 <div id="training-tab" class="tab-content">
+                    <h3>التدريب</h3>
+                    <p>مستوى مرافق التدريب: <span id="training-facility-level">1</span></p>
+                    <button id="start-training-btn">بدء جلسة تدريبية (تستهلك لياقة)</button> <!-- Clarified cost -->
+                    <p id="training-result"></p>
+                 </div>
+
+                 <!-- Competitions Tab Content -->
+                 <div id="competitions-tab" class="tab-content">
+                    <h3>البطولات الحالية</h3>
+                    <div id="current-competitions">
+                        <h4>الدوري الإسباني (La Liga)</h4>
+                        <p>المركز الحالي: <span class="comp-league-pos">-</span> | النقاط: <span class="comp-league-pts">-</span></p>
+                        <h4>كأس الملك (Copa del Rey)</h4>
+                        <p>الوضع: <span id="copa-del-rey-status">لم تبدأ بعد / الدور الحالي / تم الإقصاء</span></p>
+                        <!-- Add Champions League/Europa League status here later -->
+                    </div>
+                 </div>
+            </section>
+
+            <!-- الانتقالات (No major changes needed here for now) -->
+            <section id="transfers-section">
+                 <h2>سوق الانتقالات</h2>
+                 <div class="tabs">
+                    <button class="tab-button active" data-tab="buy-players">شراء لاعبين</button>
+                    <button class="tab-button" data-tab="sell-players">بيع لاعبين</button>
+                     <button class="tab-button" data-tab="scouting">الكشافة</button>
+                </div>
+                 <div id="buy-players-tab" class="tab-content active">
+                     <h3>لاعبون معروضون للبيع</h3>
+                     <ul id="transfer-market-list">
+                         <!-- سيتم ملء سوق الانتقالات هنا -->
+                     </ul>
+                 </div>
+                 <div id="sell-players-tab" class="tab-content">
+                    <h3>لاعبوك (للبيع)</h3>
+                    <ul id="sell-player-list">
+                        <!-- قائمة لاعبيك للبيع -->
+                    </ul>
+                 </div>
+                <div id="scouting-tab" class="tab-content">
+                    <h3>الكشافة</h3>
+                    <p>أرسل كشافيك للبحث عن مواهب جديدة (سيتم تطوير هذه الميزة).</p>
+                    <button disabled>إرسال كشاف (قيد التطوير)</button>
+                </div>
+            </section>
+
+            <!-- المباريات والنتائج (Updated structure for different competitions) -->
+            <section id="fixtures-section">
+                <h2>المباريات والجدول</h2>
+                <ul id="fixtures-list">
+                    <!-- جدول المباريات هنا (Will show upcoming matches across all competitions) -->
+                </ul>
+                 <div id="match-simulation" style="display: none;">
+                     <h3>محاكاة المباراة (<span id="sim-match-competition"></span>)</h3> <!-- Show Competition -->
+                     <p id="match-info">فريقك ضد الخصم</p>
+                     <p id="match-score">0 - 0</p>
+                     <div id="match-events">
+                         <ul></ul>
+                     </div>
+                     <button id="simulate-match-btn">محاكاة المباراة</button>
+                 </div>
+                 <div id="match-result" style="display: none;">
+                     <h3>نتيجة المباراة (<span id="res-match-competition"></span>)</h3> <!-- Show Competition -->
+                     <p id="final-score"></p>
+                     <p id="match-summary"></p>
+                     <button id="back-to-fixtures">العودة للجدول</button>
+                 </div>
+            </section>
+
+             <!-- League Table Section -->
+             <section id="league-table-section">
+                 <h2>جدول ترتيب الدوري الإسباني</h2>
+                 <table id="league-table-display">
+                     <thead>
+                         <tr>
+                             <th>#</th>
+                             <th>الفريق</th>
+                             <th>لعب</th>
+                             <th>ف</th>
+                             <th>ت</th>
+                             <th>خ</th>
+                             <th>له</th>
+                             <th>عليه</th>
+                             <th>فارق</th>
+                             <th>نقاط</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         <!-- League table rows will be generated here -->
+                     </tbody>
+                 </table>
+             </section>
+
+            <!-- المالية (No major changes needed here for now) -->
+            <section id="finances-section">
+                <h2>الإدارة المالية</h2>
+                <p>الميزانية الحالية: <span id="finance-budget">€0</span></p>
+                <p>الدخل الأسبوعي (تقدريبي): <span id="weekly-income">€0</span></p>
+                <p>المصروفات الأسبوعية (رواتب): <span id="weekly-expenses">€0</span></p>
+                <div id="sponsorship-deals">
+                    <h3>عقود الرعاية</h3>
+                    <ul id="sponsor-list"><li>لا يوجد رعاة حاليًا.</li></ul>
+                    <button id="find-sponsor-btn" disabled>البحث عن راعي (قيد التطوير)</button>
+                </div>
+                 <div>
+                     <h3>أسعار التذاكر</h3>
+                     <label for="ticket-price">سعر التذكرة:</label>
+                     <input type="number" id="ticket-price" min="5" max="100" step="1">
+                     <button id="set-ticket-price-btn">تحديد السعر</button>
+                 </div>
+            </section>
+
+            <!-- المنشآت (No major changes needed here for now) -->
+            <section id="facilities-section">
+                <h2>الملعب والمنشآت</h2>
+                 <div>
+                     <h3>الملعب</h3>
+                     <p>المستوى الحالي: <span id="stadium-level">1</span> | السعة: <span id="stadium-capacity">10000</span></p>
+                     <p>تكلفة التطوير: <span id="stadium-upgrade-cost">€5,000,000</span></p>
+                     <button id="upgrade-stadium-btn">تطوير الملعب</button>
+                 </div>
+                 <hr>
+                 <div>
+                     <h3>مرافق التدريب</h3>
+                     <p>المستوى الحالي: <span id="training-level-display">1</span></p>
+                     <p>تكلفة التطوير: <span id="training-upgrade-cost">€2,000,000</span></p>
+                     <button id="upgrade-training-btn">تطوير مرافق التدريب</button>
+                 </div>
+            </section>
+
+            <!-- الإعلام (No major changes needed here for now) -->
+             <section id="media-section">
+                 <h2>الإعلام والتفاعل</h2>
+                 <div id="press-conference">
+                     <h3>المؤتمر الصحفي (بعد المباراة)</h3>
+                     <p id="press-situation">لا يوجد مؤتمر صحفي حاليًا.</p>
+                     <div id="press-options" style="display: none;">
+                         <button data-response="positive">رد إيجابي ومتفائل</button>
+                         <button data-response="neutral">رد محايد ودبلوماسي</button>
+                         <button data-response="negative">رد حذر أو انتقادي</button>
+                     </div>
+                     <p id="press-result"></p>
+                 </div>
+                 <hr>
+                 <div id="fan-feedback">
+                     <h3>ردود فعل الجماهير</h3>
+                     <p id="fan-sentiment">الجماهير راضية بشكل عام.</p>
+                 </div>
+             </section>
+
+        </main>
+
+        <footer>
+            <p>لعبة محاكاة مدرب كرة القدم - نسخة تجريبية</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
